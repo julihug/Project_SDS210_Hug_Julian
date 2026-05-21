@@ -1,5 +1,18 @@
 # Project_SDS210_Hug_Julian
 
+* Research Question and Overview
+
+
+
+
+
+
+
+
+
+
+
+
 
 Full Workflow for the Zurich LST–NDVI Time‑Series Analysis
 
@@ -14,8 +27,8 @@ importing the tools you need:
 ---
 
 ## **2. Define the list of TIFF files**
-# creating a list containing the file paths to all Landsat composites.  
-# This ensures the images are loaded in the correct chronological order.
+creating a list containing the file paths to all Landsat composites.  
+This ensures the images are loaded in the correct chronological order.
 
 ---
 
