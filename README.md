@@ -1,11 +1,11 @@
 # Assessing Urban Heat
 
-### Research Question and Overview
+## Research Question and Overview
 This project analyzes long‑term environmental change in Zürich using multi spectral data from Landsat composites from 1985–2024. For each year in the time series of 1985-2024, the Normalized Difference Vegetation Index (NDVI) and Land Surface Temperature (LST) gets calculated and then compiled into a multi-year raster dataset stack (ndvi_stack and lst_stack). These outputs are used to investigate the following research questions:
 
 How drastically has the average land surface temperature changed since the mid-1980s? Is there a measurable correlation between warmer urban areas and lower vegetation or high build-up signals? How do spectral indices help us interpret the physical causes of these heat patterns? Are specific neighborhoods within the city warming faster than others?
 
-### Repository Structure
+## Repository Structure
 
 ```bash
 Project_SDS210_Hug_Julian/
@@ -18,17 +18,17 @@ Project_SDS210_Hug_Julian/
 └── .gitignore
 ```   
 
-#### Folder explanations
+### Folder explanations
 
 * data/raw/      contains the 14 Landsat composite TIFFs (1985–2024).
 * notebooks/     contains the main notebook that executes the full analysis.
 * outputs/       contains all exported figures (RGB composites, NDVI/LST maps, trend maos, correlation plot)
 
-### Data Sources
+## Data Sources
 
 14 cloud-free Landsat composites were collected. These composites are arranged in a time series between 1985 and 2024 and were stored as GeoTIFF files in the data/raw directory. Each TIFF contains 7 spectral bands: Blue, Green, Red, NIR, SWIR1, SWIR2, TIR1(thermal infrared) and the surface reflectance. Like this the the Normalized Difference Vegetation Index (NDVI) and Land Surface Temperature (LST) were able to be computed.
 
-### Setup Instructions
+## Setup Instructions
 
 1. Create the environment: 
 conda env create -sds-env
@@ -52,29 +52,27 @@ git clone https://github.com/julihug/Project_SDS210_Hug_Julian
 cd Project_SDS210_Hug_Julian
 ```
 
-### Workflow Overview
+## Workflow Overview
 
-1. Data Loading & Preparation
-   1.1 Spectral Band Inspection & RGB Visualization
-   1.2 NDVI Computation & Visualization
-   1.3 LST Computation & Visualization
-   1.4 Yearly Statistics & Time Series
+#### 1. Data Loading & Preparation
+1.1 Spectral Band Inspection & RGB Visualization
+1.2 NDVI Computation & Visualization
+1.3 LST Computation & Visualization
+1.4 Yearly Statistics & Time Series
    
-2. Trend Analysis
-   2.1 NDVI Trend
-   2.2 LST Trend
+#### 2. Trend Analysis
+2.1 NDVI Trend
+2.2 LST Trend
+  
+#### 3. Early vs. Late Change Detection
+3.1 NDVI Change Map
+3.2 LST Change Map
 
-   
-3. Early vs. Late Change Detection
-   3.1 NDVI Change Map
-   3.2 LST Change Map
+#### 4. NDVI-LST Correlation Analysis
+4.1 Scatterplot
+4.2 Correlation Map
 
-   
-5. NDVI-LST Correlation Analysis
-   4.1 Scatterplot
-   4.2 Correlation Map
-
-### Summary for the Workflow
+## Summary for the Workflow
 
 #### 1. Data Loading & Preparation
 
