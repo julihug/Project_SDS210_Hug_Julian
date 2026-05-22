@@ -77,13 +77,13 @@ cd Project_SDS210_Hug_Julian
 #### 1. Data Loading & Preparation
 
 - Load 14 Landsat composite TIFFs (1985–2024) from data/raw/.
-- - This creates a list of file paths pointing to each Landsat composite raster that will be processed. Each file represents one year in the time series dataset.
+- This creates a list of file paths pointing to each Landsat composite raster that will be processed. Each file represents one year in the time series dataset.
 ```bash
 files = ["./data/raw/Landsat/LandsatComposite_Zurich_1985.tif", ...]
 ``` 
 - Read each file using rasterio and store all 7 spectral bands.
 - Build a 4D data stack with shape: (year, band, row, col)
-- define the years covered with years:
+- Define the years covered with years:
 ```bash
 np.arange(1985, 1985 + stack.shape[0])
 ```
@@ -95,35 +95,51 @@ np.arange(1985, 1985 + stack.shape[0])
 
 - Open the 2024 TIFF with raster.io.
 - Print: Number of bands and the Band descriptions.
-- Verify correct band order (Blue → TIR1).
-- Visualize all 7 bands in grayscale with a loop that loops from band 1 to 7 reads the band with src.read(i).
+- Verify correct band order (Blue to TIR1).
+- Visualize all 7 bands in grayscale with a loop that loops from band 1 to 7 and reads the band with src.read(i).
   
 1.1.2 Simple RGB Visualization (All Years)
 
 - Create a function using bands 1–3 (Blue, Green, Red), which are the first three bands
-- Clip negative values and normalize image so all pixels fall in range [0,1].
-- Display all 14 years in a 3×5 grid with a loop that loops over all years, with arr = stack[i] that seltects the full 7-    Band Landsat image for year i. This is convertet to a simple RGB composite using simple_rgb(), and displays it in a 3×5      subplot grid.
+- Clip negative values and normalize the image so all pixels fall in the range [0,1].
+- Display all 14 years in a 3×5 grid with a loop that loops over all years that seltects the full 7-Band Landsat image for year i:
+```bash
+arr = stack[i]
+```
+- This is convertet to a simple RGB composite using simple_rgb(), and display it in a 3×5 subplot grid.
 
 1.1.3 RGB with Percentile Stretch (All Years)
 
 - Use true‑color mapping with function get_rgb: R = NIR (band 4), G = Red (band 3), B = Green (band 2).
 - Apply 2–98% percentile stretch with function def stretch(x).
-- Display enhanced RGB composites for all years with a loop. It iterates through all 14 years with arr = stack[1].    
+- Display enhanced RGB composites for all years with a loop. It iterates through all 14 years:
+```bash
+arr = stack[1]. 
+```
 
 1.1.4 Reflectance Distribution (2024)
 
-- Select the 2024 image and take the first 3 Bands and rearrange with rgb = stack[13][:3].transpose(1, 2, 0).
-- Clip negative reflectance values with the rgb = np.clip(rgb, 0, None).
+- Select the 2024 image and take the first 3 Bands and rearrange.
+```bash
+rgb = stack[13][:3].transpose(1, 2, 0).
+```
+- Clip negative reflectance values:
+```bash
+rgb = np.clip(rgb, 0, None).
+```
 - Flatten all pixel values.
 - Plot histogram on log scale to inspect reflectance range.
 
 1.1.5 Optimized RGB Composite (2024)
 
-- Extract 2024 image and take first 3 Bands and rearrange with year = stack[13], rgb = year[:3].transpose(1, 2, 0).
+- Extract 2024 image and take first 3 Bands and rearrange:
+```bash
+year = stack[13], rgb = year[:3].transpose(1, 2, 0).
+```
 - Create unoptimized RGB composite with rgb_raw, normalizing all values to range [0,1].
 - Create optimized RGB composite with rgb_opt.
 - Apply 0.5–99.5% stretch according to the values observed in the histogram in step 1.14.
-- Gamma correction, so image becomes clearer and more natural.
+- Apply gamma correction, so image becomes clearer and more natural.
 - Export final RGB composite to outputs/.
 
 #### 1.2 NDVI Computation & Visualization
@@ -132,8 +148,10 @@ np.arange(1985, 1985 + stack.shape[0])
 
 - Create a 3D empty array with ndvi_stack, because NDVI is singleband product.
 - Loop through all 14 years and extract Red (band 3) and NIR (band 4).
-- Compute NDVI with the firmula: NDVI=\frac{NIR-Red}{NIR+Red} and it is then stored in the ndvi_stack.
-
+- Compute and store it in the ndvi_stack. NDVI formula:
+```bash
+NDVI=\frac{NIR-Red}{NIR+Red}
+```
 1.2.2 NDVI Histograms
 
 - Extract NDVI for first and last year to Plot NDVI distributions for: 1985 and 2024.
@@ -150,8 +168,10 @@ np.arange(1985, 1985 + stack.shape[0])
 
 - Define physical constants for computation
 - Create a 3D array empty stack with lst_stack, because LST is singleband product.
-- Loop through all 14 years and extract thermal band (TIR1) and apply the LST correction formula:  lst = bt / (1 + (lambda_  * bt / rho) * np.log(emissivity)).
-
+- Loop through all 14 years and extract thermal band (TIR1) and apply the LST correction formula:
+```bash
+lst = bt / (1 + (lambda_  * bt / rho) * np.log(emissivity))
+```
 1.3.2 LST Histograms
 
 - Extract LST for first and last year to Plot LST distributions for: 1985 and 2024.
@@ -180,10 +200,17 @@ np.arange(1985, 1985 + stack.shape[0])
 
 #### 2.1 NDVI Trend
 
-- Define time axis with years = np.array([...]), assert ndvi_stack.shape[0] == len(years). Ensures the number of Years         matches the NDVI stack. Because years are not evenly spaced.
-- Prepare empty trend map with 2D array, each pixel will store one slope value with: ndvi_trend = np.full((rows, cols),        np.nan) lst_trend  = np.full((rows, cols), np.nan).
-- For each pixel, extract its NDVI time series with loop over every pixel. For each pixel its 14-year NDVI time series gets    extracted.
-- Computing the linear trend: First fit a linear regression across all 14 years and store slope change per year (a) in a 2D    NDVI trend map. Positive slope: vegetation increasing, Negative slope: vegetation decreasing, Near zero: stable vegetation
+- Define time axis:
+```bash
+years = np.array([...]), assert ndvi_stack.shape[0] == len(years)
+```
+- Ensures the number of Years matches the NDVI stack. Because years are not evenly spaced.
+- Prepare empty trend map with 2D array, each pixel will store one slope value:
+```bash
+ndvi_trend = np.full((rows, cols),np.nan) lst_trend  = np.full((rows, cols), np.nan)
+```
+- For each pixel, extract its NDVI time series with loop over every pixel. For each pixel its 14-year NDVI time series gets extracted.
+- Computing the linear trend: First fit a linear regression across all 14 years and store slope change per year (a) in a 2D NDVI trend map. Positive slope: vegetation increasing, Negative slope: vegetation decreasing, Near zero: stable vegetation
 - Plot histogram of NDVI trend values to analyse the distribution of the values.
 
 2.1.1 Plotting the NDVI Trend for 1985 to 2024
