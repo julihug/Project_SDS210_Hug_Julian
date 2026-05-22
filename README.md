@@ -1,178 +1,278 @@
-# Project_SDS210_Hug_Julian
+# Assessing Urban Heat
 
-* Research Question and Overview
+### Research Question and Overview
+This project analyzes long‑term environmental change in Zürich using multi spectral data from Landsat composites from 1985–2024. For each year in the time series of 1985-2024, the Normalized Difference Vegetation Index (NDVI) and Land Surface Temperature (LST) gets calculated and then compiled into a multi-year raster dataset stack (ndvi_stack and lst_stack). These outputs are used to investigate the following research questions:
 
+How drastically has the average land surface temperature changed since the mid-1980s? Is there a measurable correlation between warmer urban areas and lower vegetation or high build-up signals? How do spectral indices help us interpret the physical causes of these heat patterns? Are specific neighborhoods within the city warming faster than others?
 
+### Repository Structure
 
+Project_SDS210_Hug_Julian/          
+├── data/   
+│   └── raw
+├── notebooks/ 
+│   └── Time_Series_Analysis.ipynb
+├── outputs/
+├── README.md               
+└── .gitignore        
 
+Folder explanations
 
+*data/raw/  contains the 14 Landsat composite TIFFs (1985–2024).
+*notebooks/ contains the main notebook that executes the full analysis.
+*outputs/   contains all exported figures (RGB composites, NDVI/LST maps, trend maos, correlation plot)
 
+### Data Sources
 
+14 cloud-free Landsat composites were collected. These composites are arranged in a time series between 1985 and 2024 and were stored as GeoTIFF files in the data/raw directory. Each TIFF contains 7 spectral bands: Blue, Green, Red, NIR, SWIR1, SWIR2, TIR1(thermal infrared) and the surface reflectance. Like this the the Normalized Difference Vegetation Index (NDVI) and Land Surface Temperature (LST) were able to be computed.
 
+### Setup Instructions
 
+1. Create the environment: 
+conda env create -sds-env
+conda activate sds-env
 
+2. Start JupyterLab:
+jupyter lab
 
+3. Place the raw data:
+data/raw
 
+4. Execution Order:
+notebooks/Time_Series_Analysis
 
-Full Workflow for the Zurich LST–NDVI Time‑Series Analysis
+Clone the repository: 
 
-## **1. Load the required libraries**
-importing the tools you need:
+To download the project, run the following commands in your terminal:
 
-- `rasterio` → to read the TIFFs  
-- `matplotlib` → to visualize them  
-- `numpy` → to compute NDVI, LST, and trends  
-
-
----
-
-## **2. Define the list of TIFF files**
-creating a list containing the file paths to all Landsat composites.  
-This ensures the images are loaded in the correct chronological order.
-
----
-
-## **3. Visually inspect the TIFFs**
-# Before doing any calculations, looping through the files and display each image.  
-
-This step confirms:
-- all images load correctly  
-- they have the same resolution  
-- they are aligned  
-- no corrupted or missing data  
-- the band structure is consistent
-
-# Before performing any calculations, I visually inspected all TIFF files to ensure that the dataset was consistent and suitable for time‑series analysis. Using a simple loop, each image was loaded and displayed individually. This allowed me to verify that all files opened correctly, shared the same spatial resolution, and were properly aligned. The inspection also confirmed that no images contained corrupted pixels, missing data, or unexpected artifacts. Since all TIFFs showed a consistent structure and appearance, the dataset was deemed ready for NDVI, LST, and trend analysis without requiring additional preprocessing.
-
----
-
-## **4. Load all TIFFs into memory**
-Once known the data is consistent, you load all images into a list or a 4D array.  
-This creates a **time‑series data cube**:
-
+```bash
+git clone https://github.com/julihug/Project_SDS210_Hug_Julian
+cd Project_SDS210_Hug_Julian
 ```
-(years, bands, height, width)
+
+### Workflow Overview
+
+1. Data Loading & Preparation
+   1.1 Spectral Band Inspection & RGB Visualization
+   1.2 NDVI Computation & Visualization
+   1.3 LST Computation & Visualization
+   1.4 Yearly Statistics & Time Series
+   
+2. Trend Analysis
+   2.1 NDVI Trend
+   2.2 LST Trend
+
+   
+3. Early vs. Late Change Detection
+   3.1 NDVI Change Map
+   3.2 LST Change Map
+
+   
+5. NDVI-LST Correlation Analysis
+   4.1 Scatterplot
+   4.2 Correlation Map
+
+### Summary for the Workflow
+
+#### 1. Data Loading & Preparation
+
+- Load 14 Landsat composite TIFFs (1985–2024) from data/raw/.
+- files = ["./data/raw/Landsat/LandsatComposite_Zurich_1985.tif", ...]: This creates a list of file paths pointing to each Landsat composite raster that will be processed. Each file represents one year in the time series dataset.
+- Read each file using rasterio and store all 7 spectral bands.
+- Build a 4D data stack with shape: (year, band, row, col)
+- define the years covered with years = np.arange(1985, 1985 + stack.shape[0])
+- Extract year labels for indexing and plotting.
+
+#### 1.1 Spectral Band Inspection & RGB Visualization
+
+1.1.1 Spectral Band Analysis
+
+- Open the 2024 TIFF with raster.io.
+- Print: Number of bands and the Band descriptions.
+- Verify correct band order (Blue → TIR1).
+- Visualize all 7 bands in grayscale with a loop that loops from band 1 to 7 reads the band with src.read(i).
+  
+1.1.2 Simple RGB Visualization (All Years)
+
+- Create a function using bands 1–3 (Blue, Green, Red), which are the first three bands
+- Clip negative values and normalize image so all pixels fall in range [0,1].
+- Display all 14 years in a 3×5 grid with a loop that loops over all years, with arr = stack[i] that seltects the full 7-      Band Landsat image for year i. This is convertet to a simple RGB composite using simple_rgb(), and displays it in a 3×5      subplot grid.
+
+1.1.3 RGB with Percentile Stretch (All Years)
+
+- Use true‑color mapping with function get_rgb: R = NIR (band 4), G = Red (band 3), B = Green (band 2).
+- Apply 2–98% percentile stretch with function def stretch(x).
+- Display enhanced RGB composites for all years with a loop. It iterates through all 14 years with arr = stack[1].    
+
+1.1.4 Reflectance Distribution (2024)
+
+- Select the 2024 image and take the first 3 Bands and rearrange with rgb = stack[13][:3].transpose(1, 2, 0).
+- Clip negative reflectance values with the rgb = np.clip(rgb, 0, None).
+- Flatten all pixel values.
+- Plot histogram on log scale to inspect reflectance range.
+
+1.1.5 Optimized RGB Composite (2024)
+
+- Extract 2024 image and take first 3 Bands and rearrange with year = stack[13], rgb = year[:3].transpose(1, 2, 0).
+- Create unoptimized RGB composite with rgb_raw, normalizing all values to range [0,1].
+- Create optimized RGB composite with rgb_opt.
+- Apply 0.5–99.5% stretch according to the values observed in the histogram in step 1.14.
+- Gamma correction, so image becomes clearer and more natural.
+- Export final RGB composite to outputs/.
+
+#### 1.2 NDVI Computation & Visualization
+
+1.2.1 NDVI Computation (All Years)
+
+- Create a 3D empty array with ndvi_stack, because NDVI is singleband product.
+- Loop through all 14 years and extract Red (band 3) and NIR (band 4).
+- Compute NDVI with the firmula: NDVI=\frac{NIR-Red}{NIR+Red} and it is then stored in the ndvi_stack.
+
+1.2.2 NDVI Histograms
+
+- Extract NDVI for first and last year to Plot NDVI distributions for: 1985 and 2024.
+- Flatten each NDVI image (vals_ndvi_1985 and vals_ndvi_2024) to a 1D array and clean values (remove NaNs).
+- Plot the histograms to analyse the data distributions. 
+
+1.2.3 NDVI Maps
+
+- Plot NDVI maps for 1985 and 2024 using a shared color scale, according to the values observed in the histograms in step      1.2.2.
+
+#### 1.3 LST Computation & Visualization
+
+1.3.1 LST Computation (All Years)
+
+- Define physical constants for computation
+- Create a 3D array empty stack with lst_stack, because LST is singleband product.
+- Loop through all 14 years and extract thermal band (TIR1) and apply the LST correction formula:  lst = bt / (1 + (lambda_    * bt / rho) * np.log(emissivity)).
+
+1.3.2 LST Histograms
+
+- Extract LST for first and last year to Plot LST distributions for: 1985 and 2024.
+- Flatten each LST image (vals_lst_1985 and vals_lst_2024) to a 1D array and clean values (remove NaNs).
+- Plot the histograms to analyse the data distributions. 
+
+1.3.3 LST Maps
+
+- Plot LST maps for 1985 and 2024 using a shared color scale, according to the values observed in the histograms in step       1.3.2.
+
+#### 1.4 Yearly Statistics & Time Series
+
+1.4.1
+- Compute yearly:
+- Mean NDVI: the average vegetation greenness, Standard deviation: the variability in vegetation, minimum NDVI: darkest /      least vegetated, maximum NDVI: brightest / densest vegetation.
+- Print the values Mean NDVI for years 1985 and 2024.
+- Mean LST (converted to °C) with lst_celsius = lst_stack - 273.15: average surface temperature, Standard deviation: thermal   variability, Minimum LST: coolest, Maximimum LST: hottest.
+- Print the values Mean LST for years 1985 and 2024.
+
+1.4.2 Visualizing the NDVI mean and LST mean Time Series (1985-2024)
+
+- Generate array of years: years = np.arange(1985, 1985 + ndvi_stack.shape[0]) and create Figure. 
+- Plot NDVI and LST mean time series (1985–2024).
+
+#### 2. Trend Analysis
+
+#### 2.1 NDVI Trend
+
+- Define time axis with years = np.array([...]), assert ndvi_stack.shape[0] == len(years). Ensures the number of Years         matches the NDVI stack. Because years are not evenly spaced.
+- Prepare empty trend map with 2D array, each pixel will store one slope value with: ndvi_trend = np.full((rows, cols),        np.nan) lst_trend  = np.full((rows, cols), np.nan).
+- For each pixel, extract its NDVI time series with loop over every pixel. For each pixel its 14-year NDVI time series gets    extracted.
+- Computing the linear trend: First fit a linear regression across all 14 years and store slope change per year (a) in a 2D    NDVI trend map. Positive slope: vegetation increasing, Negative slope: vegetation decreasing, Near zero: stable vegetation
+- Plot histogram of NDVI trend values to analyse the distribution of the values.
+
+2.1.1 Plotting the NDVI Trend for 1985 to 2024
+
+- Load spatial metadata: Bounds: the geographic extent of the raster, (left, right, bottom, top in projected coordinates), transform: the affine transform
+- These values allow to georeference the trend map so the axes show real‑world coordinates (Easting/Northing).
+- create figure.
+- Display the NDVI trend raster:
+  * ndvi_trend: the 2D array of NDVI slopes (change per year)
+  * cmap="RdYlGn": Red = negative trend (vegetation loss), Yellow = stable, Green = positive trend (vegetation gain)
+  * extent=[...]: georeferences the image using map coordinates
+  * vmin / vmax: These values come from 2.5% and 97.5% percentile, which remove extreme outliers
+- Add coordingate ticks: ticks every 1000 meters, making the map easier to interpret spatially.
+- Display it and Layout
+
+#### 2.2 LST Trend
+
+- Same procedure for LST as in step 2.1 for NDVI.
+- Compute pixel‑wise LST slope (°C/year).
+- Plot histogram of LST trend values to analyse the distribution of the values.
+
+2.2.1 Plotting the LST Trend for 1985 to 2024
+
+- create figure.
+- Display the LST trend raster similar to the description in step 2.1.1.
+- Display it and Layout.
+
+#### 3. Early vs. Late Change Detection
+
+3.1.1 Plotting the NDVI change map
+
+- Create figure
+- Display NDVI change raster:
+  * ndvi_change: the 2D array containing NDVI differences (late minus early).
+  * cmap="RdYlGn": Red = vegetation loss, Yellow = stable, Green = vegetation gain.
+  * extent=[...]: Georeferences the image using the raster bounds so the axes show real‑world coordinates (Easting/Northing in meters).
+  * vmin / vmax: these values come from 2.5% and 97.5% percentiles of the NDVI change distribution. They remove extreme outliers and make the map visually interpretable.
+
+#### 3.1 NDVI Change Map
+- Select early and late NDVI periods: Early period: 1985–1994 and Late period: 2015–2024. Take the first 7 NDVI images: early period. Take the last 7 NDVI images: late period
+- Compute mean NDVI for each period. Collapse each 7‑year block into a single NDVI image. Each pixel now represents the average vegetation in that period
+- Subtract early from late to create NDVI change map. Positive values: greening, Negative values: vegetation loss,Near zero: stable vegetation.
+- This produces a 2D NDVI change map.
+- Plot histogram to see distribution of the values to help identify outliers and choose colorbar limits.
+
+### 3.2 LST Change Map
+- Same procedure for LST (converted to °C).
+- Compute LST change (late − early).
+- Plot histogram to see distribution of the values to help identify outliers and choose colorbar limits.
+
+3.2.1 Plotting LST Change Map
+
+- create figure.
+- Display the LST change raster similar to the description in step 2.1.1.
+- Display it and Layout.
+
+#### 4. NDVI–LST Correlation Analysis
+
+#### 4.1 Scatterplot
+
+- Flatten NDVI and LST stacks into millions of pixel‑year pairs:
+```bash
+ndvi_flat = ndvi_stack.flatten()
+lst_flat = lst_stack.flatten()
 ```
-# After confirming that all TIFF files were consistent and free of errors, the next step was to load the entire dataset into memory. Each image was opened using rasterio and its spectral bands were read into a NumPy array. All yearly arrays were then stacked along a new time dimension, resulting in a 4D data cube with the structure (years, bands, height, width). The stacked dataset contains 14 temporal layers, each corresponding to one year of Landsat observations. The stack itself does not store explicit year labels; instead, the temporal order is preserved through the sequence of file names used during loading. Thus, the first element of the stack represents the earliest year in the dataset, the second element the next year, and so on. This structure allows the data to be processed efficiently as a time series while maintaining a clear link between each array slice and its corresponding year.This unified representation of the dataset forms the basis for all subsequent analyses, including NDVI computation, LST extraction, and temporal trend evaluation. 
+- This converts the 3D stacks (years, rows, cols) into 1D arrays. Each element now represents one pixel at one time.
+- Convert LST from Kelvin to Celcius
+- Remove Invalid values: Remove NaNs and infinities. Ensure regression and correlation work properly. Prints the number of valid pixel pairs.
+- Subsample 20,000 points for visualization, because millions of points would make the scatterplot unreadable.
+- Fit a linear regression: computes the best fit line. Slope = how much LST changes per NDVI unit. Intercept = baseline temperature.
+- Compute:
+- Pearson correlation (r): Negative: vegetation cools the surface., Positive: vegetation warms the surface (rare). Near zero: weak relationship. 
+- R²: Fraction of LST variation explained by NDVI, Higher = stronger vegetation–temperature link
+- Plot NDVI–LST scatterplot.
+  
+#### 4.2 Correlation Map
 
-# So the dataset contains:
-- 14 time steps
-- 7 bands per year
-- each band is a 252×297 raster
----
-
-## **5. Identify the band order**
-
-# 5.1 Before calculating NDVI and Land Surface Temperature (LST), it was necessary to determine the spectral band order of the Landsat composites. For this purpose, one representative TIFF file was opened with rasterio, and the metadata of the raster bands was inspected. In particular, the band descriptions and the number of bands were examined to identify which indices corresponded to the red, near‑infrared (NIR), and thermal bands. This step ensured that the correct spectral information was used for the NDVI calculation (which requires red and NIR reflectance) and for the extraction of surface temperature from the thermal band. Once the band indices were identified and confirmed to be consistent across all years, they were used as fixed references in the subsequent NDVI and LST computations.
-
-# 5.2 I visualized the bands. - Band 4 (NIR) → vegetation is very bright - Band 3 (Red) → vegetation is medium bright - Band 6 (Thermal) → blurry, low‑resolution look
-# To better understand the spectral structure of the dataset, each band of a representative TIFF file was visualized individually. Since the dataset contains seven spectral bands (Blue, Green, Red, NIR, SWIR1, SWIR2, TIR1), the corresponding band names were assigned manually and displayed in the plot titles. This allowed a clear interpretation of the spatial patterns in each spectral range and ensured that the correct bands were used later for NDVI (Red and NIR) and LST (TIR1) calculations.
-
-# 5.3 When previously visually inspecting the TIFF files, each image was displayed in grayscale because only a single spectral band was shown at a time. This is standard practice, as individual bands contain one intensity value per pixel and are therefore represented as grayscale images. The grayscale preview does not indicate that the data is monochromatic; the Landsat composites are multispectral and contain several bands (e.g., red, green, blue, near‑infrared, thermal). Displaying one band per image is sufficient for checking spatial alignment, resolution consistency, and data integrity before performing further analysis. Then the RGB composite was created by selecting the first three spectral bands (Blue, Green, Red) and transposing the array from band‑first to channel‑last format. This ensures each pixel contains three color values corresponding to visible wavelengths, allowing correct visualization as a true‑color image.
-
-# This is essential because NDVI and LST formulas depend on the correct bands.
-
----
-
-## **6. Compute NDVI for each year**
-
-Using the Red and NIR bands, computing NDVI:
-
-# NDVI was calculated for each year using the red and near‑infrared (NIR) spectral bands of the Landsat composites. Based on the band structure of the dataset (Blue, Green, Red, NIR, SWIR1, SWIR2, TIR1), the red band corresponds to Band 3 and the NIR band to Band 4. For every year in the time series, NDVI was computed using the standard formula
-
-NDVI=\frac{NIR-RED}{NIR+RED}
-
-# The calculation was applied pixel‑wise to all 14 annual images, and the resulting NDVI layers were stored in a new three‑dimensional array with the structure (years, height, width) in the "ndvi_stack". This NDVI time series forms the basis for analyzing vegetation dynamics and long‑term ecological trends in the study area.
-# Although NDVI requires two spectral bands (Red and NIR) for its computation, the resulting NDVI image is a single-band product. Therefore, after computing NDVI for each year, the band dimension collapses and the data are stored as 3‑D stacks (years × height × width). The stac is then flattened to align all pixel pairs for further analysis later.
-
-# This gives me the first time‑series array.
-
-# 6.1 A first look at the NDVIs for the first year (1985) and the last year (2024) in the time series was done. For visualization, NDVI maps were displayed using a fixed color scale ranging from –1 to +1. This ensures that all years are directly comparable and that the color representation remains consistent across the entire time series.
-
-# 6.2  NDVI values theoretically range from –1 to +1, but in practice the values observed in the study area (Zürich) fall within a much narrower interval, typically between 0.1 and 0.7. When visualizing NDVI with a fixed color scale of –1 to +1, the effective dynamic range is therefore compressed, which reduces visual contrast between individual years. This is expected behavior and does not indicate a lack of temporal variation. For exploratory analysis, a narrower visualization range (e.g., 0 to 0.8) was used to enhance contrast and reveal spatial patterns more clearly. However, all final NDVI maps presented in the report use the standardized –1 to +1 scale to ensure comparability across years and to maintain consistency with established NDVI interpretation guidelines.
-
----
-
-## **7. Compute LST for each year**
-
-# Land Surface Temperature (LST) was derived from the thermal infrared band (TIR1) of the Landsat composites. Since the thermal band is provided as brightness temperature (BT) in Kelvin, LST was computed using the standard emissivity‑corrected Planck equation:
-LST=\frac{BT}{1+\left( \frac{\lambda \cdot BT}{\rho }\right) \ln (\varepsilon )}
-# where \lambda =10.895\, \mu m is the effective wavelength of the Landsat thermal band, \rho =1.438\times 10^{-2}\, mK is the Planck constant term, and \varepsilon =0.97 is the assumed surface emissivity for mixed urban–vegetation environments.
-
-# The computation was applied pixel‑wise to all 14 annual thermal images, resulting in a three‑dimensional LST time series with the structure (years, height, width) and stored in the lst_stack. The resulting LST maps were subsequently converted from Kelvin to degrees Celsius for interpretation and visualization.
-# LST is derived from the thermal band. Therefore, after computing LST for each year, the band dimension collapses and the data are stored as 3‑D stacks (years × height × width). The stack is then flattened to align all pixel pairs for later analysis.
-
-# This gives me the second time‑series array.
-
-# 7.1 After computing the annual Land Surface Temperature (LST) layers, each year was visualized to enable spatial interpretation of thermal patterns across the study area. The LST values were first converted from Kelvin to degrees Celsius to facilitate interpretation. For visualization, the inferno colormap was used, as it provides a perceptually uniform gradient that is well suited for temperature data and highlights thermal hotspots clearly. All LST maps were displayed using a consistent color scale across the entire time series to ensure comparability between years. This standardized visualization approach allowed the identification of spatially persistent warm areas, cooler vegetated zones, and potential temporal changes in surface temperature.
-
----
-
-## **8. Computing yearly statistics**
-
-# For each year, summary statistics were calculated for both NDVI and LST to quantify the overall vegetation and thermal conditions of the study area. The statistics included the mean, minimum, maximum, and standard deviation, computed across all pixels within each annual raster. These metrics provide a compact representation of the temporal evolution of vegetation greenness and surface temperature and serve as a basis for identifying long‑term trends and interannual variability. LST statistics were computed after converting the temperature values from Kelvin to degrees Celsius to facilitate interpretation.
-# Each TIFF in the dataset represents a yearly median composite derived from all cloud‑free Landsat acquisitions within that year. Therefore, the dataset contains one LST image per year rather than monthly observations. Although each year is represented by a single composite, the raster still contains tens of thousands of pixel‑level temperature values because of its resolution of 252 × 297 = 74,844 pixels per year. To summarize the thermal conditions for each year in every raster image, descriptive statistics (mean, minimum, maximum, and standard deviation) were computed across all pixels in the annual LST raster. These yearly statistics provide a compact representation of the thermal state of the study area and form the basis for subsequent temporal and trend analyses.
-
----
-
-## **9. Visualize the time series with the years means**
-
-# To visualize long‑term environmental changes in Zürich, the yearly mean NDVI and LST values were plotted as time series covering the period 1985–2024. The NDVI time series illustrates the evolution of vegetation greenness, while the LST time series shows how surface temperatures have changed over the same period. Both metrics were derived from the annual raster composites by averaging all pixel values within each year.
-# The NDVI time series was plotted using a green line to reflect vegetation dynamics, and the LST time series was plotted using a red line to highlight thermal behavior. A consistent temporal axis was used for both variables to enable direct comparison. These visualizations reveal interannual variability as well as long‑term trends, providing an intuitive overview of environmental change in the study area.
-
-# Short first interpretation of the both mean time series: 
-
-# NDVI:
-# The NDVI curve shows relatively stable vegetation greenness across the entire time span, with only moderate fluctuations between years. This indicates that the overall vegetation cover in the study area has remained largely consistent, without major long‑term increases or declines. Short‑term variations are visible and likely reflect differences in annual climate conditions, seasonal timing of satellite acquisitions, or small‑scale land‑use changes, but no strong directional trend is apparent.
-# LST:
-# In contrast, the LST time‑series displays a clearer upward tendency. Although individual years show variability, the overall pattern suggests a gradual warming of surface temperatures in the study area. This aligns with broader regional and global warming trends and may also reflect local urban development, increased impervious surfaces, or reduced evapotranspiration in built‑up zones. The rise in mean LST over time indicates that the urban environment has become progressively warmer, even though vegetation levels remained relatively stable.
-# Combined interpretation:
-# When viewed together, the two curves suggest that Zürich has experienced a warming trend that is not directly accompanied by a corresponding decline in vegetation greenness. This implies that the observed increase in surface temperature is likely driven more by climatic warming and urbanization processes than by large‑scale vegetation loss.
-
----
-
-## **10. Create spatial trend and change map from 1985 to 2024 of NDVI and LST**
-
-# 10.1 To identify spatial patterns of long‑term environmental change, I computed pixel‑wise linear trends for both NDVI and LST across the full time series (1985–2024). For each pixel location, a simple linear regression was fitted to its 14 annual NDVI values and 14 annual LST values. The resulting regression slopes represent the yearly rate of change in vegetation and surface temperature.
-# The NDVI trend map highlights areas where vegetation cover is increasing or declining, while the LST trend map reveals where surface temperatures are warming or cooling. These spatial trend maps provide geographic context to the statistical NDVI–LST relationship established in Step 10 and help identify neighborhoods experiencing the strongest vegetation loss or surface warming.
-
-# Interpretation of NDVI Trend Map (1985–2024)
-# The NDVI trend map illustrates the spatial pattern of vegetation change across the study area over the 39‑year period. Each pixel represents the linear rate of NDVI change per year, derived from annual composites between 1985 and 2024. The predominance of orange and light yellow tones indicates that most areas have experienced little to no significant change in vegetation cover, suggesting stable land‑use conditions. Isolated green patches correspond to zones with positive NDVI trends, reflecting gradual greening—likely due to reforestation, park expansion, or increased vegetation density. Conversely, scattered reddish areas mark negative NDVI trends, indicating vegetation loss or conversion to built‑up surfaces. These localized declines are typically associated with urban densification or infrastructure development. Overall, the map reveals that vegetation cover in Zürich has remained largely stable, with only minor spatial pockets of gain and loss, providing a spatial complement to the statistical NDVI–LST correlation analysis in Step 10.
-
-# Interpretation of LST Trend Map (1985–2024)
-# The LST trend map depicts the spatial pattern of long‑term surface temperature change across the study area between 1985 and 2024. Each pixel represents the linear rate of temperature change per year, derived from annual LST composites. The color scale ranges from dark purple (no or minimal change) to bright yellow (strong positive warming trend). The predominance of purple and orange tones indicates that most areas have experienced moderate warming, typically between 0.1 °C and 0.3 °C per year. Isolated yellow patches highlight zones with accelerated temperature increase, often corresponding to dense built‑up or industrial surfaces where heat retention is strongest. In contrast, darker areas with near‑zero slopes mark regions with stable or slightly cooling conditions, likely associated with vegetated or water‑influenced zones. Overall, the map reveals a clear spatial pattern of urban warming, consistent with the urban heat‑island effect, and complements the NDVI trend map by showing that areas with vegetation decline tend to coincide with stronger positive LST trends.
-
----
-
-## **11. Compare NDVI and LST correlation**
-
-# 11.1 To quantify the relationship between vegetation and surface temperature, a pixel‑wise correlation analysis was conducted using the NDVI and LST stacks. Both datasets were stored as 3‑D arrays (years × height × width). These stacks were flattened into 1‑D arrays so that every pixel from every year formed a single NDVI–LST observation pair.
-# LST values were converted from Kelvin to degrees Celsius to ensure interpretability. A validity mask was applied to remove all pixels containing non‑finite values (NaN or ±inf) in either dataset. This step ensures that only spatially aligned and numerically valid pixel pairs are included in the analysis.
-# To maintain plot readability, a random subsample of 20,000 valid pixel pairs was selected. A linear regression model was fitted to these data using np.polyfit, which returns the slope and intercept of the best‑fit line describing the NDVI–LST relationship. The regression line was generated by evaluating this model across the observed NDVI range.
-# The Pearson correlation coefficient (r) and coefficient of determination (R²) were computed to quantify the strength and explanatory power of the relationship. The resulting scatterplot, combined with the regression line, visualizes the spatial co‑variation between NDVI and LST across all years. A negative slope and negative correlation indicate that higher vegetation density is associated with lower surface temperatures, demonstrating the cooling effect of vegetated areas
-
-# 11.2 NDVI–LST Correlation Map (1985–2024)
-# To examine how vegetation and surface temperature interact spatially across Zürich, a pixel‑wise correlation map was computed using the full NDVI and LST time series (1985–2024). For each pixel, the Pearson correlation coefficient r was calculated between its NDVI values and corresponding LST values across all available years. This approach reveals how strongly vegetation dynamics and thermal behavior are linked at the local scale, rather than only at the city‑wide level.
-# The resulting map shows clear spatial patterns. Strong negative correlations (blue tones) indicate areas where higher vegetation consistently corresponds to lower surface temperatures, reflecting the cooling effect of parks, forests, and lakeshore vegetation. Weak or near‑zero correlations appear in mixed or transitional land‑use zones, where vegetation cover fluctuates or where surface materials vary. Slightly positive correlations (red tones) occur in dense urban areas or industrial surfaces, where vegetation is sparse and thermal behavior is dominated by built‑up materials rather than vegetation dynamics.
-# This spatial correlation map complements the global scatterplot analysis by showing where the NDVI–LST relationship is strongest. It highlights the spatial heterogeneity of the urban heat–vegetation interaction and confirms that the cooling effect of vegetation is not uniform across the city but concentrated in specific green and peri‑urban areas
-
-# 11.3 Creating a Bivariate Map for the NDVI and LST combined**
-# The NDVI–LST bivariate map visualizes the spatial relationship between vegetation density and surface temperature across Zürich. NDVI and LST values were each classified into three categories—low, medium, and high—based on quantile thresholds, and then combined to form nine possible NDVI–LST pairings. The resulting categorical scale ranges from cool bare/water surfaces to warm vegetated zones, as shown in the color legend.
-# Areas dominated by low NDVI and high LST (hot built‑up zones) correspond to dense urban surfaces and industrial areas, indicating strong heat‑island effects. Conversely, high NDVI and low LST regions (cool vegetated zones) represent parks, forested areas, and lakeshores that maintain lower surface temperatures. Intermediate categories reflect transitional land‑use zones with moderate vegetation and temperature levels.
-# This map provides a spatial complement to the NDVI–LST correlation analysis, revealing where the negative relationship between vegetation cover and surface temperature is most pronounced. The categorical color scale directly explains each NDVI–LST combination, enabling intuitive interpretation of how vegetation and built‑up intensity influence local heat patterns.
-
----
-
-## **12. Interpret the results**
+- Ensure NDVI and LST stacks match: Both stacks must have shape (years, rows, cols). Guarantees pixel‑wise correlation is valid
+- Create empty correlation map: Output is a 2D raster. Each pixel stores one correlation value. Same spatial size as the NDVI/LST images.
+- Loop through every pixel: Extract its NDVI time series (14 values). Extract its LST time series (14 values). Remove invalid values (NaN, inf).
+- For each pixel, compute correlation between NDVI and LST across all years. Requires at least 3 valid years. Compute the Pearson correlation coefficient (r). Store it in the correlation map. If too few valid values: pixel becomes NaN.
+- Interpretation of r:
+  *r < 0: NDVI up, LST down (vegetation cools surface)
+  *r > 0: NDVI up, LST down (rare, often urban artifacts)
+  *r ≈ 0: no meaningful relationship
+- Create a 2D correlation map showing spatial NDVI–LST relationships, with vmin=-1, vmax=1 showing full correlation range
+and extent=[...]: georeferences the map using real‑world coordinates.
 
 
-This is where research questions gets answered:
 
-- How much has Zurich warmed?  
-- How has vegetation changed?  
-- Are heat and vegetation loss correlated?  
-- Which areas show the strongest changes?  
 
----
+  
+
+
+
+
 
 
