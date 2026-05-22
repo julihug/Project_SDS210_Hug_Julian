@@ -77,10 +77,16 @@ cd Project_SDS210_Hug_Julian
 #### 1. Data Loading & Preparation
 
 - Load 14 Landsat composite TIFFs (1985–2024) from data/raw/.
-- files = ["./data/raw/Landsat/LandsatComposite_Zurich_1985.tif", ...]: This creates a list of file paths pointing to each Landsat composite raster that will be processed. Each file represents one year in the time series dataset.
+- - This creates a list of file paths pointing to each Landsat composite raster that will be processed. Each file represents one year in the time series dataset.
+```bash
+files = ["./data/raw/Landsat/LandsatComposite_Zurich_1985.tif", ...]
+``` 
 - Read each file using rasterio and store all 7 spectral bands.
 - Build a 4D data stack with shape: (year, band, row, col)
-- define the years covered with years = np.arange(1985, 1985 + stack.shape[0])
+- define the years covered with years:
+```bash
+np.arange(1985, 1985 + stack.shape[0])
+```
 - Extract year labels for indexing and plotting.
 
 #### 1.1 Spectral Band Inspection & RGB Visualization
