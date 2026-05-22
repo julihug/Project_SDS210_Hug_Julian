@@ -219,10 +219,13 @@ ndvi_trend = np.full((rows, cols),np.nan) lst_trend  = np.full((rows, cols), np.
 - These values allow to georeference the trend map so the axes show real‑world coordinates (Easting/Northing).
 - create figure.
 - Display the NDVI trend raster:
-  * ndvi_trend: the 2D array of NDVI slopes (change per year)
-  * cmap="RdYlGn": Red = negative trend (vegetation loss), Yellow = stable, Green = positive trend (vegetation gain)
-  * extent=[...]: georeferences the image using map coordinates
-  * vmin / vmax: These values come from 2.5% and 97.5% percentile, which remove extreme outliers
+- ndvi_trend: the 2D array of NDVI slopes (change per year).
+- Red = negative trend (vegetation loss), Yellow = stable, Green = positive trend (vegetation gain):
+```bash
+cmap="RdYlGn" 
+``` 
+- Georeferences the image using map coordinates: extent=[...]
+- vmin / vmax: These values come from 2.5% and 97.5% percentile, which remove extreme outliers.
 - Add coordingate ticks: ticks every 1000 meters, making the map easier to interpret spatially.
 - Display it and Layout
 
@@ -244,11 +247,14 @@ ndvi_trend = np.full((rows, cols),np.nan) lst_trend  = np.full((rows, cols), np.
 
 - Create figure
 - Display NDVI change raster:
-  * ndvi_change: the 2D array containing NDVI differences (late minus early).
-  * cmap="RdYlGn": Red = vegetation loss, Yellow = stable, Green = vegetation gain.
-  * extent=[...]: Georeferences the image using the raster bounds so the axes show real‑world coordinates (Easting/Northing in meters).
-  * vmin / vmax: these values come from 2.5% and 97.5% percentiles of the NDVI change distribution. They remove extreme outliers and make the map visually interpretable.
-
+- ndvi_change: The 2D array containing NDVI differences (late minus early).
+- Red = vegetation loss, Yellow = stable, Green = vegetation gain:
+```bash
+cmap="RdYlGn"
+```
+- extent=[...]: Georeferences the image using the raster bounds so the axes show real‑world coordinates (Easting/Northing in meters).
+- vmin / vmax: These values come from 2.5% and 97.5% percentiles of the NDVI change distribution. They remove extreme outliers and make the map visually interpretable.
+```
 #### 3.1 NDVI Change Map
 - Select early and late NDVI periods: Early period: 1985–1994 and Late period: 2015–2024. Take the first 7 NDVI images: early period. Take the last 7 NDVI images: late period
 - Compute mean NDVI for each period. Collapse each 7‑year block into a single NDVI image. Each pixel now represents the average vegetation in that period
