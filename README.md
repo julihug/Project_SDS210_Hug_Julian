@@ -8,7 +8,14 @@ How drastically has the average land surface temperature changed since the mid-1
 ### Repository Structure
 
 ```bash
-Project_SDS210_Hug_Julian/ ├── data/ │   └── raw/ ├── notebooks/ │   └── Time_Series_Analysis.ipynb ├── outputs/ ├── README.md └── .gitignore
+Project_SDS210_Hug_Julian/
+├── data/
+│   └── raw/
+├── notebooks/
+│   └── Time_Series_Analysis.ipynb
+├── outputs/
+├── README.md
+└── .gitignore
 ```   
 
 #### Folder explanations
