@@ -299,9 +299,9 @@ lst_flat = lst_stack.flatten()
 - Loop through every pixel: Extract its NDVI time series (14 values). Extract its LST time series (14 values). Remove invalid values (NaN, inf).
 - For each pixel, compute correlation between NDVI and LST across all years. Requires at least 3 valid years. Compute the Pearson correlation coefficient (r). Store it in the correlation map. If too few valid values: pixel becomes NaN.
 - Interpretation of r:
-+ r < 0: NDVI up, LST down (vegetation cools surface)
-+ r > 0: NDVI up, LST down (rare, often urban artifacts)
-+ r ≈ 0: no meaningful relationship
+r < 0: NDVI up, LST down (vegetation cools surface)
+r > 0: NDVI up, LST down (rare, often urban artifacts)
+r ≈ 0: no meaningful relationship
 - Create a 2D correlation map showing spatial NDVI–LST relationships, with vmin=-1, vmax=1 showing full correlation range
 and extent=[...]: georeferences the map using real‑world coordinates.
 
