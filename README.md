@@ -257,8 +257,8 @@ cmap="RdYlGn"
 - vmin / vmax: These values come from 2.5% and 97.5% percentiles of the NDVI change distribution. They remove extreme outliers and make the map visually interpretable.
 
 #### 3.1 NDVI Change Map
-- Select early and late NDVI periods: Early period: 1985–1994 and Late period: 2015–2024. Take the first 7 NDVI images: early period. Take the last 7 NDVI images: late period
-- Compute mean NDVI for each period. Collapse each 7‑year block into a single NDVI image. Each pixel now represents the average vegetation in that period
+- Select early and late NDVI periods: Early period: 1985–1994 and Late period: 2015–2024. Take the first 7 NDVI images: early period. Take the last 4 NDVI images: late period
+- Compute mean NDVI for each period. Collapse each 4‑year block into a single NDVI image. Each pixel now represents the average vegetation in that period
 - Subtract early from late to create NDVI change map. Positive values: greening, Negative values: vegetation loss,Near zero: stable vegetation.
 - This produces a 2D NDVI change map.
 - Plot histogram to see distribution of the values to help identify outliers and choose colorbar limits.
