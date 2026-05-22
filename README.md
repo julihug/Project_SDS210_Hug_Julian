@@ -7,20 +7,20 @@ How drastically has the average land surface temperature changed since the mid-1
 
 ### Repository Structure
 
-Project_SDS210_Hug_Julian/          
-├── data/   
-│   └── raw
-├── notebooks/ 
+Project_SDS210_Hug_Julian/
+├── data/
+│   └── raw/
+├── notebooks/
 │   └── Time_Series_Analysis.ipynb
 ├── outputs/
-├── README.md               
-└── .gitignore        
+├── README.md
+└── .gitignore     
 
-Folder explanations
+#### Folder explanations
 
-*data/raw/  contains the 14 Landsat composite TIFFs (1985–2024).
-*notebooks/ contains the main notebook that executes the full analysis.
-*outputs/   contains all exported figures (RGB composites, NDVI/LST maps, trend maos, correlation plot)
+* data/raw/      contains the 14 Landsat composite TIFFs (1985–2024).
+* notebooks/     contains the main notebook that executes the full analysis.
+* outputs/       contains all exported figures (RGB composites, NDVI/LST maps, trend maos, correlation plot)
 
 ### Data Sources
 
@@ -96,7 +96,7 @@ cd Project_SDS210_Hug_Julian
 
 - Create a function using bands 1–3 (Blue, Green, Red), which are the first three bands
 - Clip negative values and normalize image so all pixels fall in range [0,1].
-- Display all 14 years in a 3×5 grid with a loop that loops over all years, with arr = stack[i] that seltects the full 7-      Band Landsat image for year i. This is convertet to a simple RGB composite using simple_rgb(), and displays it in a 3×5      subplot grid.
+- Display all 14 years in a 3×5 grid with a loop that loops over all years, with arr = stack[i] that seltects the full 7-    Band Landsat image for year i. This is convertet to a simple RGB composite using simple_rgb(), and displays it in a 3×5      subplot grid.
 
 1.1.3 RGB with Percentile Stretch (All Years)
 
@@ -144,7 +144,7 @@ cd Project_SDS210_Hug_Julian
 
 - Define physical constants for computation
 - Create a 3D array empty stack with lst_stack, because LST is singleband product.
-- Loop through all 14 years and extract thermal band (TIR1) and apply the LST correction formula:  lst = bt / (1 + (lambda_    * bt / rho) * np.log(emissivity)).
+- Loop through all 14 years and extract thermal band (TIR1) and apply the LST correction formula:  lst = bt / (1 + (lambda_  * bt / rho) * np.log(emissivity)).
 
 1.3.2 LST Histograms
 
@@ -154,7 +154,7 @@ cd Project_SDS210_Hug_Julian
 
 1.3.3 LST Maps
 
-- Plot LST maps for 1985 and 2024 using a shared color scale, according to the values observed in the histograms in step       1.3.2.
+- Plot LST maps for 1985 and 2024 using a shared color scale, according to the values observed in the histograms in step     1.3.2.
 
 #### 1.4 Yearly Statistics & Time Series
 
