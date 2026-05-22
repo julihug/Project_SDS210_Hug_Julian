@@ -7,14 +7,8 @@ How drastically has the average land surface temperature changed since the mid-1
 
 ### Repository Structure
 
-Project_SDS210_Hug_Julian/
-├── data/
-│   └── raw/
-├── notebooks/
-│   └── Time_Series_Analysis.ipynb
-├── outputs/
-├── README.md
-└── .gitignore     
+Project_SDS210_Hug_Julian/ ├── data/ │   └── raw/ ├── notebooks/ │   └── Time_Series_Analysis.ipynb ├── outputs/ ├── README.md └── .gitignore
+    
 
 #### Folder explanations
 
@@ -158,7 +152,7 @@ cd Project_SDS210_Hug_Julian
 
 #### 1.4 Yearly Statistics & Time Series
 
-1.4.1
+1.4.1 Computing yearly statistics for NDVI and LST (each year)
 - Compute yearly:
 - Mean NDVI: the average vegetation greenness, Standard deviation: the variability in vegetation, minimum NDVI: darkest /      least vegetated, maximum NDVI: brightest / densest vegetation.
 - Print the values Mean NDVI for years 1985 and 2024.
