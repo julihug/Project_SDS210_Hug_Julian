@@ -254,7 +254,7 @@ cmap="RdYlGn"
 ```
 - extent=[...]: Georeferences the image using the raster bounds so the axes show real‑world coordinates (Easting/Northing in meters).
 - vmin / vmax: These values come from 2.5% and 97.5% percentiles of the NDVI change distribution. They remove extreme outliers and make the map visually interpretable.
-```
+
 #### 3.1 NDVI Change Map
 - Select early and late NDVI periods: Early period: 1985–1994 and Late period: 2015–2024. Take the first 7 NDVI images: early period. Take the last 7 NDVI images: late period
 - Compute mean NDVI for each period. Collapse each 7‑year block into a single NDVI image. Each pixel now represents the average vegetation in that period
