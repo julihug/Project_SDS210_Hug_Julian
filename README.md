@@ -3,7 +3,7 @@
 ## Research Question and Overview
 This project analyzes long‑term environmental change in Zürich using multi spectral data from Landsat composites from 1985–2024. For each year in the time series of 1985-2024, the Normalized Difference Vegetation Index (NDVI) and Land Surface Temperature (LST) gets calculated and then compiled into a multi-year raster dataset stack (ndvi_stack and lst_stack). These outputs are used to investigate the following research questions:
 
-How drastically has the average land surface temperature changed since the mid-1980s? Is there a measurable correlation between warmer urban areas and lower vegetation or high build-up signals? How do spectral indices help us interpret the physical causes of these heat patterns? Are specific neighborhoods within the city warming faster than others?
+How drastically has the average land surface temperature changed since the mid-1980s? Is there a measurable correlation between warmer urban areas and lower vegetation or high build-up signals? Are specific neighborhoods within the city warming faster than others?
 
 ## Repository Structure
 
@@ -180,6 +180,7 @@ lst = bt / (1 + (lambda_  * bt / rho) * np.log(emissivity))
 
 1.3.3 LST Maps
 
+- Convert Kelvin to Celcius by subtracting 273.15, because T_Celsius = T_Kelvin - 273.15
 - Plot LST maps for 1985 and 2024 using a shared color scale, according to the values observed in the histograms in step     1.3.2.
 
 #### 1.4 Yearly Statistics & Time Series
